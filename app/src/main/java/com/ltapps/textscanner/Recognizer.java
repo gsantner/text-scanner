@@ -27,9 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
@@ -38,7 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItemClickListener {
+public class Recognizer extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     private Toolbar toolbar;
     private EditText search;
     private TextView textView;
@@ -47,7 +44,6 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
     TessBaseAPI baseApi;
     AsyncTask<Void, Void, Void> copy = new copyTask();
     AsyncTask<Void, Void, Void> ocr = new ocrTask();
-    private AdView mAdView;
 
     private static final String DATA_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/com.ltapps.textscanner/";
 
@@ -57,16 +53,18 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
         setContentView(R.layout.recognizer);
 
         // AdMob App ID
+        /*
         MobileAds.initialize(this, BuildConfig.AdMobAppId);
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
+        */
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(this);
-        ViewCompat.setElevation(toolbar,10);
-        ViewCompat.setElevation((LinearLayout) findViewById(R.id.extension),10);
+        ViewCompat.setElevation(toolbar, 10);
+        ViewCompat.setElevation((LinearLayout) findViewById(R.id.extension), 10);
         textView = (TextView) findViewById(R.id.textExtracted);
         textView.setMovementMethod(new ScrollingMovementMethod());
         search = (EditText) findViewById(R.id.search_text);
@@ -88,17 +86,20 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
+
             @Override
             public void afterTextChanged(Editable editable) {
-                String ett = search.getText().toString().replaceAll("\n"," ");
-                String tvt = textView.getText().toString().replaceAll("\n"," ");
+                String ett = search.getText().toString().replaceAll("\n", " ");
+                String tvt = textView.getText().toString().replaceAll("\n", " ");
                 textView.setText(textView.getText().toString());
-                if(!ett.toString().isEmpty()) {
+                if (!ett.toString().isEmpty()) {
                     int ofe = tvt.toLowerCase().indexOf(ett.toLowerCase(), 0);
                     Spannable WordtoSpan = new SpannableString(textView.getText());
                     for (int ofs = 0; ofs < tvt.length() && ofe != -1; ofs = ofe + 1) {
@@ -121,15 +122,15 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
 
     }
 
-    private void recognizeText(){
+    private void recognizeText() {
         String language = "";
         if (Binarization.language == 0)
             language = "eng";
         else
-            language= "spa";
+            language = "spa";
 
         baseApi = new TessBaseAPI();
-        baseApi.init(DATA_PATH, language,TessBaseAPI.OEM_TESSERACT_ONLY);
+        baseApi.init(DATA_PATH, language, TessBaseAPI.OEM_TESSERACT_ONLY);
         baseApi.setImage(Binarization.umbralization);
         textScanned = baseApi.getUTF8Text();
 
@@ -144,15 +145,15 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
         } catch (IOException e) {
             Log.e("tag", "Failed to get asset file list.", e);
         }
-        for(String filename : files) {
-            Log.i("files",filename);
+        for (String filename : files) {
+            Log.i("files", filename);
             InputStream in = null;
             OutputStream out = null;
-            String dirout= DATA_PATH + "tessdata/";
+            String dirout = DATA_PATH + "tessdata/";
             File outFile = new File(dirout, filename);
-            if(!outFile.exists()) {
+            if (!outFile.exists()) {
                 try {
-                    in = assetManager.open("trainneddata/"+filename);
+                    in = assetManager.open("trainneddata/" + filename);
                     (new File(dirout)).mkdirs();
                     out = new FileOutputStream(outFile);
                     copyFile(in, out);
@@ -167,10 +168,11 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
             }
         }
     }
+
     private void copyFile(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int read;
-        while((read = in.read(buffer)) != -1){
+        while ((read = in.read(buffer)) != -1) {
             out.write(buffer, 0, read);
         }
     }
@@ -193,7 +195,7 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
 
         @Override
         protected Void doInBackground(Void... params) {
-            Log.i("CopyTask","copying..");
+            Log.i("CopyTask", "copying..");
             copyAssets();
             return null;
         }
@@ -216,7 +218,7 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
 
         @Override
         protected Void doInBackground(Void... params) {
-            Log.i("OCRTask","extracting..");
+            Log.i("OCRTask", "extracting..");
             recognizeText();
             return null;
         }
@@ -238,11 +240,11 @@ public class Recognizer extends AppCompatActivity implements  Toolbar.OnMenuItem
                         getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("TextScanner", textView.getText());
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(Recognizer.this,"Text has been copied to clipboard", Toast.LENGTH_LONG).show();
+                Toast.makeText(Recognizer.this, "Text has been copied to clipboard", Toast.LENGTH_LONG).show();
                 break;
             case R.id.new_scan:
                 Intent i = getBaseContext().getPackageManager()
-                        .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+                        .getLaunchIntentForPackage(getBaseContext().getPackageName());
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 break;

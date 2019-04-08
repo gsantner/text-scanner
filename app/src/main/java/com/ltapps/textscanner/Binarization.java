@@ -49,7 +49,7 @@ public class Binarization extends AppCompatActivity implements View.OnClickListe
         fab.setOnClickListener(this);
         pix = com.googlecode.leptonica.android.ReadFile.readBitmap(CropAndRotate.croppedImage);
 
-        final ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Arrays.asList("English", "Spanish"));
+        final ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Arrays.asList("English", "Spanish", "German"));
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
